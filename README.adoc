@@ -1,0 +1,97 @@
+= Groovy stream-sum - summing integers with streams
+
+== The F# Challenge
+
+My friend @hexsprite is learning F# and sent me his first F# program:
+
+[source]
+----
+let square x = x * x
+let sumOfSquares n = [1..n] |> List.map square |> List.sum
+sumOfSquares 100 |> printfn "result: %i"
+----
+
+I told him I'd write it in Groovy and Java using Streams and send it to him. I figured it was
+a good opportunity to learn how to use Java Streams in Groovy -- which I hadn't done before. I
+found that it wasn't as Groovy as I expected, so I decided to write an extension function to make it
+Groovy.
+
+== The questions
+
+To write this in Java there was a choice to be made:
+
+* Which type of number, `Integer` or `int`, etc.? 
+
+In Groovy there were at least three choices to be made:
+
+* Which type of number, `Integer` or `int`, etc.? 
+* Use Java Streams or Groovy Collections?
+* Use lambdas or closures?
+* `var`, `def`, or explicit type?
+
+== The Java version
+
+.SumOfSquares.Java
+[source,java]
+----
+import java.util.function.IntUnaryOperator;
+import static java.util.stream.IntStream.rangeClosed;
+import static java.lang.System.out;
+
+public class SumOfSquares {
+    public static void main(String[] args) {
+        IntUnaryOperator square = x -> x * x;
+        IntUnaryOperator sumOfSquares = n -> rangeClosed(0,n).map(square).sum();
+        out.println("result: " + sumOfSquares.applyAsInt(100));
+    }
+}
+----
+
+By using `import static` twice, I was able to _cheat a little_ and send him just these three lines:
+
+.Java "cheat a little" excerpt
+[source,java]
+----
+IntUnaryOperator square = x -> x * x;
+IntUnaryOperator sumOfSquares = n -> rangeClosed(0,n).map(square).sum();
+out.println("result: " + sumOfSquares.applyAsInt(100));
+----
+
+NOTE:: Using `var` for the declaration of the lambdas doesn't work in Java.
+
+
+== The Groovy versions
+
+.SumOfSquaresIdiomaticGroovy
+[source,groovy]
+----
+var square = x -> x * x
+var sumOfSquares = n -> (0..n).collect(square).sum()
+println "result: ${sumOfSquares(100)}"
+----
+
+.SumOfSquares.Groovy
+[source,groovy]
+----
+var square = x -> x * x
+var sumOfSquares = n -> (0..n).stream().map(square).mapToInt(x -> x).sum()
+println "result: ${sumOfSquares(100)}"
+----
+
+.SumOfSquaresIntStream.Groovy
+[source,groovy]
+----
+import java.util.stream.IntStream;
+var square = x -> x * x
+var sumOfSquares = n -> IntStream.of(0..n as int[]).map(square).sum()
+println "result: ${sumOfSquares(100)}"
+----
+
+
+== What's missing in Groovy
+
+
+== Adding it via extensions
+
+
+
