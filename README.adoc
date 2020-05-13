@@ -36,7 +36,7 @@ In Groovy there were at least four choices to be made:
 * Use lambdas or closures?
 * `var`, `def`, or explicit type?
 
-Since Groovy collections aren't equivalent to streams in *F#*,
+Since Groovy collections aren't equivalent to streams in *F#*, the answer to the first question is to use Java Streams. Since Java Streams can only sum primitive types, I chose `int` (and therefore `IntStream`) for the number type. Since I wanted the Java and Groovy examples to be as similar and directly-comparable as possible, I used `var` for defining variables and lambdas rather than Groovy Closures. The `var` keyword and Java lambda syntax are both new in Groovy 3.
 
 === The Java Implementation
 
