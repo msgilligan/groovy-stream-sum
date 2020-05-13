@@ -16,10 +16,13 @@ group = "com.msgilligan.groovystreamsum"
 version = "0.1"
 description = "A groovy Extension library for stream summing"
 
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+
 repositories {
     jcenter()
 }
-
 
 dependencies {
     implementation "org.codehaus.groovy:groovy:${groovyVersion}"
@@ -30,13 +33,13 @@ dependencies {
         }
 }
 
+test.dependsOn(jar) // We are testing Groovy extensions and need META-INF/service resource
+
 test {
     useJUnitPlatform()          // We're using Spock 2.0 and JUnit 5
 }
 
-
 // code below this can be safely removed if you don't want publish library ever
-
 
 apply plugin: 'maven-publish'
 apply plugin: 'bintray'

@@ -1,8 +1,8 @@
-= Groovy stream-sum - summing integers with streams
+= Groovy StreamSum - summing Numbers with streams
 
 == The F# Challenge
 
-My friend @hexsprite is learning F# and sent me his first F# program:
+My friend @hexsprite is learning *F#* and sent me his first F# program:
 
 [source]
 ----
@@ -11,25 +11,34 @@ let sumOfSquares n = [1..n] |> List.map square |> List.sum
 sumOfSquares 100 |> printfn "result: %i"
 ----
 
-I told him I'd write it in Groovy and Java using Streams and send it to him. I figured it was
+I told him I'd write it in *Groovy* and *Java* using Streams and send it to him. I figured it was
 a good opportunity to learn how to use Java Streams in Groovy -- which I hadn't done before. I
-found that it wasn't as Groovy as I expected, so I decided to write an extension function to make it
-Groovy.
+found that it wasn't as Groovy as I expected, so I decided to write some extension functions to make it
+_Groovy_ again.
 
-== The questions
+== Implementation the Challenge in Java and Groovy
+
+
+=== Java Decisions
 
 To write this in Java there was a choice to be made:
 
-* Which type of number, `Integer` or `int`, etc.? 
+* Which type of number, `Integer` or `int`, etc.?
 
-In Groovy there were at least three choices to be made:
+Since `IntStream` provides _range_ functions and `.sum()`, using `int` was the easy choice.
 
-* Which type of number, `Integer` or `int`, etc.? 
+=== Groovy Decisions
+
+In Groovy there were at least four choices to be made:
+
 * Use Java Streams or Groovy Collections?
+* Which type of number, `Integer` or `int`, etc.?
 * Use lambdas or closures?
 * `var`, `def`, or explicit type?
 
-== The Java version
+Since Groovy collections aren't equivalent to streams in *F#*,
+
+=== The Java Implementation
 
 .SumOfSquares.Java
 [source,java]
@@ -60,9 +69,13 @@ out.println("result: " + sumOfSquares.applyAsInt(100));
 NOTE:: Using `var` for the declaration of the lambdas doesn't work in Java.
 
 
-== The Groovy versions
+=== The Groovy Implementation
 
-.SumOfSquaresIdiomaticGroovy
+The first example `SumOfSquaresIdiomatic.groovy` shows the nice, easy-to-read, idiomatic Groovy code that we
+would expect. Unfortunately, it is not using Java `Stream`, so it is not possible to add more Stream operations
+to the pipleine and isn't really an equivalent implementation of the original *F#* code.
+
+.SumOfSquaresIdiomatic.groovy
 [source,groovy]
 ----
 var square = x -> x * x
@@ -70,28 +83,58 @@ var sumOfSquares = n -> (0..n).collect(square).sum()
 println "result: ${sumOfSquares(100)}"
 ----
 
-.SumOfSquares.Groovy
+The second groovy example `SumOfSquares.groovy` is probably the best we can do with current Groovy without the use of any extensions. Java `Object` Streams do not have a `.sum()` operation, but Java Streams that use primitive numberic types do have `.sum()`. So we use the `.mapToInt()` function to convert from `Stream` to `IntStream` so we can use `.sum()`. This is the code I sent to @hexsprite.
+
+.SumOfSquares.groovy
 [source,groovy]
 ----
 var square = x -> x * x
-var sumOfSquares = n -> (0..n).stream().map(square).mapToInt(x -> x).sum()
+var sumOfSquares = n -> (0..n).stream().mapToInt(x -> x).map(square).sum()
 println "result: ${sumOfSquares(100)}"
 ----
 
-.SumOfSquaresIntStream.Groovy
+This repository contains a prototype implementation of a few Groovy extensions, including a `.sum()` method for `Stream` that will work on `Object` streams containing `Number` subclasses (throwing a `ClassCastException` otherwise.) This results in a nice, idiomatic Groovy implementation of the original *F#* code.  (Well, except for the stream operator `|>` and the ability to stream to `println` which is a subject for another day.)
+
+This is the code I wanted to send to @hexsprite, but couldn't -- until after I wrote the Extension.
+
+.SumOfSquaresUsingExtension.groovy
 [source,groovy]
 ----
-import java.util.stream.IntStream;
 var square = x -> x * x
-var sumOfSquares = n -> IntStream.of(0..n as int[]).map(square).sum()
+var sumOfSquares = n -> (0..n).stream().map(square).sum()
 println "result: ${sumOfSquares(100)}"
 ----
 
+== The Extensions
 
-== What's missing in Groovy
+To enable the extensions in your project simply include `groovy-stream-sum-0.1.jar` in your project's runtime classpath.
 
+=== StreamSum
 
-== Adding it via extensions
+Using link:src/main/groovy/com/msgilligan/groovy/streamsum/StreamSum.groovy[StreamSum] can now use `.sum()` on `Object` streams, like this:
 
+[source,groovy]
+----
+assert (0..100).stream().sum() == 5050
+----
+
+NOTE:: If the `Stream` contains non-numeric types (or types that don't have any `.asType()` conversions to numbers) you'll get a `ClassCastException`.
+
+For more examples see the Spock test: link:src/test/groovy/com/msgilligan/groovy/streamsum/StreamSumSpec.groovy[StreamSumSpec.groovy]
+
+=== CollectionPrimitiveSteam
+
+link:src/main/groovy/com/msgilligan/groovy/streamsum/CollectionPrimitiveStream.groovy[CollectionPrimitiveSteam] adds three methods to any `Collection` allowing you to get create the three Java primitive stream types: `IntStream`, `LongStream`, `DoubleStream`, like this:
+
+[source,groovy]
+----
+assert [0i, 1i].intStream().sum() == 1
+assert [0L, 1L].longStream().sum() == 1L
+assert [0.0, 1.0].doubleStream().sum() == 1.0d
+----
+
+NOTE:: If the `Collection` contains non-numeric types (or types that don't have any `.asType()` conversions to numbers) you'll get a `ClassCastException`.
+
+For more examples see the Spock test: link:src/test/groovy/com/msgilligan/groovy/streamsum/CollectionPrimitiveStreamSpec.groovy[CollectionPrimitiveStreamSpec.groovy]
 
 

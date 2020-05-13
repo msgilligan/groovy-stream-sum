@@ -1,0 +1,3 @@
+moduleName=Groovy extensions for creating primitive streams and summing Number streams
+moduleVersion=0.1-SNAPSHOT
+extensionClasses=com.msgilligan.groovy.streamsum.CollectionPrimitiveStream,com.msgilligan.groovy.streamsum.StreamSum
