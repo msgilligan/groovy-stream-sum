@@ -1,5 +1,7 @@
 = Groovy StreamSum - summing Numbers with streams
 
+image:https://travis-ci.org/msgilligan/groovy-stream-sum.svg?branch=master["Build Status", link="https://travis-ci.org/msgilligan/groovy-stream-sum"]
+
 == The F# Challenge
 
 My friend @hexsprite is learning *F#* and sent me his first F# program:
